@@ -8,6 +8,10 @@ function simple_movement() {
 	dir = (global.key_right - global.key_left)
 	hsp = dir * move_spd;
 	vsp += grav;
+	
+	if (dir != 0) {
+		last_direction = dir;
+	}
 }
 
 function handle_jumping() {
@@ -24,6 +28,10 @@ function handle_jumping() {
 		vsp = jump_spd;
 		can_double_jump = false;
 	}
+	
+	if (on_ground) {
+		can_dash = true;
+	}
 }
 
 function dash() {
@@ -32,17 +40,9 @@ function dash() {
 	}
 	
 	if (global.key_dash && dash_timer <= 0) {
-		if (on_ground) {
-		hsp += (sign(hsp) * 100);
+		hsp += (last_direction * 100);
 		dash_timer = dash_cooldown;
 		can_dash = true;
 		air_dashed = false; 
-			
-		} else if (!on_ground && !air_dashed) {
-			hsp += (sign(hsp) * 100);
-			dash_timer = dash_cooldown;
-			air_dashed = true;
-			can_dash = false;
-		}
 	}
 }
