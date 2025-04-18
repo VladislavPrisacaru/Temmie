@@ -2,6 +2,7 @@ function all_movement(){
 	simple_movement()
 	handle_jumping()
 	dash()
+	wall_jump()
 }
 
 function simple_movement() {
@@ -15,7 +16,7 @@ function simple_movement() {
 }
 
 function handle_jumping() {
-	if (place_meeting(x, y+1, oWall)) && (global.key_space_pressed){
+	if (place_meeting(x, y+1, oFloor)) && (global.key_space_pressed){
 		vsp = jump_spd;
 		can_double_jump = true;
 		on_ground = false; 
@@ -39,10 +40,52 @@ function dash() {
 		dash_timer -= 1;
 	}
 	
-	if (global.key_dash && dash_timer <= 0) {
-		hsp += (last_direction * 100);
-		dash_timer = dash_cooldown;
-		can_dash = true;
-		air_dashed = false; 
+	if (global.key_dash && dash_timer <= 0 && can_dash) {
+	    if (global.touching_wall_left) {
+	        hsp += (abs(last_direction) * dash_power);
+			dash_timer = dash_cooldown;
+			can_dash = true;
+			air_dashed = false;
+			
+	    } else if (global.touching_wall_right) {
+			hsp += (-abs(last_direction) * dash_power);
+			dash_timer = dash_cooldown;
+			can_dash = true;
+			air_dashed = false;
+			
+	    } else {
+	        hsp += (last_direction * dash_power);
+			dash_timer = dash_cooldown;
+			can_dash = true;
+			air_dashed = false;
+	    }
+	}
+}
+
+function wall_jump() {
+	global.touching_wall_left = place_meeting(x - 1, y, oWall);
+	global.touching_wall_right = place_meeting(x + 1, y, oWall);
+	
+	on_wall = (global.touching_wall_left || global.touching_wall_right) && !place_meeting(x, y + 1, oWall);
+	
+	if (on_wall && vsp > 0) {
+		vsp = lerp(vsp, wall_slide_spd, 0.3);
+		wall_slide = true
+		
+	} else {
+		wall_slide = false;
+	}
+	
+	if (global.key_space_pressed && on_wall) {
+		vsp = jump_spd * wall_jump_power;
+		
+		if (global.touching_wall_left) {
+        hsp = move_spd * wall_jump_speed; 
+		can_double_jump = true;
+		
+		} else if (global.touching_wall_right) {
+        hsp = -move_spd * wall_jump_speed;
+		can_double_jump = true;
+		}
 	}
 }
