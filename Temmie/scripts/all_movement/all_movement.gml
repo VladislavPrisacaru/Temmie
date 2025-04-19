@@ -17,11 +17,11 @@ function simple_movement() {
 		// get the last direction the player is facing
 		last_direction = dir;
 	}
-}
+} 
 
 function handle_jumping() {
 	// all of th jumping
-	if (place_meeting(x, y+1, oFloor)) && (global.key_space_pressed){
+	if ((place_meeting(x, y+1, oFloor)) || (place_meeting(x, y+1, oWall))) && (global.key_space_pressed){
 		vsp = jump_spd;
 		can_double_jump = true;
 		on_ground = false; 
@@ -61,7 +61,7 @@ function dash() {
 			air_dashed = false;
 			
 	    } else { // normal dash
-	        hsp += (last_direction * dash_power); 
+	        hsp += (last_direction * dash_power); // allow to dash in the last facing direction even if the player is still
 			dash_timer = dash_cooldown;
 			can_dash = true;
 			air_dashed = false;
